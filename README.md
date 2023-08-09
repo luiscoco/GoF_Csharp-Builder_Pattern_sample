@@ -41,6 +41,64 @@ using static System.Console;
 
 namespace DotNetDesignPatternDemos.Creational.Builder;
 
+public class Demo
+{
+  static void Main(string[] args)
+  {
+    {
+      // if we want to build a simple HTML paragraph...
+      var hello = "hello";
+      var text = "";
+      text += "<p>";  // <p> → text
+      text += hello;  // <p>hello → text
+      text += "</p>"; // <p>hello</p> → text
+      WriteLine(text);
+
+      // now we want an HTML list with 2 words in it
+      var sb = new StringBuilder();
+      var words = new[] {"hello", "world"};
+      sb.Clear();
+      sb.Append("<ul>");
+      foreach (var word in words)
+      {
+        sb.Append($"<li>{word}</li>");
+      }
+
+      sb.Append("</ul>");
+      WriteLine(sb);
+
+      // ordinary non-fluent builder
+      var builder = new HtmlBuilder("ul");
+      builder.AddChild("li", "hello");
+      builder.AddChild("li", "world");
+      WriteLine(builder.ToString());
+
+      // fluent builder
+      sb.Clear();
+      builder.Clear(); // disengage builder from the object it's building, then...
+      builder.AddChildFluent("li", "hello").AddChildFluent("li", "world");
+      WriteLine(builder);
+    }
+
+    // with factory method
+    {
+      var builder = HtmlElement.Create("ul");
+      builder.AddChildFluent("li", "hello")
+        .AddChildFluent("li", "world");
+      WriteLine(builder);
+    }
+      
+    // with implicit operator
+    {
+      var root = HtmlElement
+        .Create("ul")
+        .AddChildFluent("li", "hello")
+        .AddChildFluent("li", "world");
+      WriteLine(root);
+    }
+  }
+}
+
 public record HtmlElement(string Name, string Text)
 {
   public string Name = Name;
@@ -121,64 +179,6 @@ public class HtmlBuilder
   public static implicit operator HtmlElement(HtmlBuilder builder)
   {
     return builder.root;
-  }
-}
-
-public class Demo
-{
-  static void Main(string[] args)
-  {
-    {
-      // if we want to build a simple HTML paragraph...
-      var hello = "hello";
-      var text = "";
-      text += "<p>";  // <p> → text
-      text += hello;  // <p>hello → text
-      text += "</p>"; // <p>hello</p> → text
-      WriteLine(text);
-
-      // now we want an HTML list with 2 words in it
-      var sb = new StringBuilder();
-      var words = new[] {"hello", "world"};
-      sb.Clear();
-      sb.Append("<ul>");
-      foreach (var word in words)
-      {
-        sb.Append($"<li>{word}</li>");
-      }
-
-      sb.Append("</ul>");
-      WriteLine(sb);
-
-      // ordinary non-fluent builder
-      var builder = new HtmlBuilder("ul");
-      builder.AddChild("li", "hello");
-      builder.AddChild("li", "world");
-      WriteLine(builder.ToString());
-
-      // fluent builder
-      sb.Clear();
-      builder.Clear(); // disengage builder from the object it's building, then...
-      builder.AddChildFluent("li", "hello").AddChildFluent("li", "world");
-      WriteLine(builder);
-    }
-
-    // with factory method
-    {
-      var builder = HtmlElement.Create("ul");
-      builder.AddChildFluent("li", "hello")
-        .AddChildFluent("li", "world");
-      WriteLine(builder);
-    }
-      
-    // with implicit operator
-    {
-      var root = HtmlElement
-        .Create("ul")
-        .AddChildFluent("li", "hello")
-        .AddChildFluent("li", "world");
-      WriteLine(root);
-    }
   }
 }
 ```
